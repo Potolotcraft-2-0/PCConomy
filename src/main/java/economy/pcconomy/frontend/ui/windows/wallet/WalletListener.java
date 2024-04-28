@@ -2,7 +2,6 @@ package economy.pcconomy.frontend.ui.windows.wallet;
 
 import economy.pcconomy.backend.cash.CashManager;
 import economy.pcconomy.backend.cash.items.Wallet;
-import economy.pcconomy.backend.scripts.items.ItemManager;
 import economy.pcconomy.frontend.ui.windows.IWindowListener;
 import economy.pcconomy.frontend.ui.windows.Window;
 
@@ -13,11 +12,12 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.EquipmentSlot;
+import org.j1sk1ss.itemmanager.manager.Manager;
 
 import lombok.experimental.ExtensionMethod;
 
 
-@ExtensionMethod({ItemManager.class})
+@ExtensionMethod({Manager.class, CashManager.class})
 public class WalletListener implements Listener, IWindowListener {
     @EventHandler
     public void onWalletUse(PlayerInteractEvent event) {
@@ -59,7 +59,7 @@ public class WalletListener implements Listener, IWindowListener {
             if (option == null) return;
 
             if (option.getLoreLines().size() < 2) return;
-            var amount = option.getPriceFromLore(1);
+            var amount = option.getDoubleFromContainer("item-wallet-value");
 
             if (amount > 0) {
                 CashManager.giveCashToPlayer(Math.abs(amount), player, true);

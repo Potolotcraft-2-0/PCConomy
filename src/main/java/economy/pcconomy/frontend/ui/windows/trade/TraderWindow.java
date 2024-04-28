@@ -5,8 +5,6 @@ import economy.pcconomy.PcConomy;
 import economy.pcconomy.backend.cash.CashManager;
 import economy.pcconomy.backend.license.objects.LicenseType;
 import economy.pcconomy.backend.npc.traits.Trader;
-import economy.pcconomy.backend.scripts.items.Item;
-import economy.pcconomy.backend.scripts.items.ItemManager;
 
 import lombok.experimental.ExtensionMethod;
 import net.kyori.adventure.text.Component;
@@ -16,6 +14,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.j1sk1ss.itemmanager.manager.Item;
+import org.j1sk1ss.itemmanager.manager.Manager;
 import org.j1sk1ss.menuframework.objects.MenuWindow;
 import org.j1sk1ss.menuframework.objects.interactive.components.Button;
 import org.j1sk1ss.menuframework.objects.interactive.components.Panel;
@@ -28,7 +28,7 @@ import static economy.pcconomy.frontend.ui.windows.trade.TraderListener.getTrade
 import static economy.pcconomy.frontend.ui.windows.trade.TraderListener.rantTrader;
 
 
-@ExtensionMethod({ItemManager.class})
+@ExtensionMethod({Manager.class, CashManager.class})
 public class TraderWindow {
         @SuppressWarnings("deprecation")
         public static MenuWindow TraderMenu =
@@ -182,7 +182,7 @@ public class TraderWindow {
                             var trader     = getTraderFromTitle(title);
                             var inventory  = event.getInventory();
                             var buyingItem = inventory.getItem(13);
-                            var price      = buyingItem.getPriceFromLore(0);
+                            var price      = buyingItem.getDoubleFromContainer("item-price");
 
                             if (trader == null) return;
                             if (CashManager.amountOfCashInInventory(player, false) >= price || trader.Owner.equals(player.getUniqueId())) {
@@ -201,8 +201,7 @@ public class TraderWindow {
                                             if (trader.SpecialList.contains(Objects.requireNonNull(TownyAPI.getInstance().getTown(player)).getUUID())) {
                                                     CashManager.giveCashToPlayer(price - endPrice, player, false);
                                                     PcConomy.GlobalTownManager.getTown(trader.HomeTown).changeBudget(-(price - endPrice));
-                                                    player.sendMessage("Так как вы состоите в торговом союзе, пошлина была " +
-                                                            "компенсированна городом");
+                                                    player.sendMessage("Так как вы состоите в торговом союзе, пошлина была компенсированна городом");
                                             }
                                     }
                                 }
