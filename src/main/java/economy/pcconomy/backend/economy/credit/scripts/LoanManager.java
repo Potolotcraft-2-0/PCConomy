@@ -5,13 +5,13 @@ import economy.pcconomy.backend.economy.Capitalist;
 import economy.pcconomy.backend.economy.credit.Borrower;
 import economy.pcconomy.backend.economy.credit.Loan;
 import economy.pcconomy.backend.scripts.BalanceManager;
-import economy.pcconomy.backend.scripts.PlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+
 
 public class LoanManager {
     public static double trustCoefficient = .5d; // 1.5f
@@ -62,9 +62,10 @@ public class LoanManager {
      * @return Loan status for this borrower
      */
     public static boolean isSafeLoan(double loanAmount, int duration, Player borrower) {
-        return (getSafetyFactor(loanAmount, duration, PcConomy.GlobalBorrowerManager.getBorrowerObject(borrower)) >= trustCoefficient
-                || blackTown(PlayerManager.getCountryMens(borrower.getUniqueId()))
-                || PlayerManager.getPlayerServerDuration(borrower) > 100); // TODO: Return && &&
+        return true;
+//        return (getSafetyFactor(loanAmount, duration, PcConomy.GlobalBorrowerManager.getBorrowerObject(borrower)) >= trustCoefficient
+//                && blackTown(PlayerManager.getCountryMens(borrower.getUniqueId()))
+//                && PlayerManager.getPlayerServerDuration(borrower) > 100); // TODO: Return && &&
     }
 
     /**
