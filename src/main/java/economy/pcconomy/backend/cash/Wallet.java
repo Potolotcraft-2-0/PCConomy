@@ -1,6 +1,4 @@
-package economy.pcconomy.backend.cash.items;
-
-import economy.pcconomy.backend.cash.CashManager;
+package economy.pcconomy.backend.cash;
 
 import lombok.experimental.ExtensionMethod;
 import org.apache.commons.lang.StringUtils;
@@ -85,6 +83,9 @@ public class Wallet {
      * @return Wallet status
      */
     public static boolean isWallet(ItemStack itemStack) {
+        if (itemStack == null) return false;
+        if (itemStack.getLoreLines() == null) return false;
+
         if (itemStack.getLoreLines().size() == 0) return false;
         return StringUtils.containsAny(itemStack.getLoreLines().get(0).toLowerCase(), "алеф") &&
                     StringUtils.containsAny(itemStack.getLoreLines().get(1).toLowerCase(), "вместимость") &&

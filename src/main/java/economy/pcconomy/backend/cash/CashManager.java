@@ -1,7 +1,5 @@
 package economy.pcconomy.backend.cash;
 
-import economy.pcconomy.backend.cash.items.Wallet;
-
 import lombok.experimental.ExtensionMethod;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -167,7 +165,7 @@ public class CashManager {
      * Amount of cash in player inventory
      * @param player Player that will be checked
      * @param ignoreWallet Ignore wallet during calculations
-     * @return Amount of cah in player`s inventory
+     * @return Amount of cash in player`s inventory
      */
     public static double amountOfCashInInventory(Player player, boolean ignoreWallet) {
         return CashManager.getAmountFromCash(CashManager.getCashFromInventory(player.getInventory()))
