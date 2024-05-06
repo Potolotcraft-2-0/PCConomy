@@ -12,8 +12,8 @@ import economy.pcconomy.backend.npc.traits.*;
 import economy.pcconomy.backend.placeholderapi.PcConomyPAPI;
 import economy.pcconomy.backend.db.Loader;
 
-import economy.pcconomy.frontend.PlayerListener;
-import economy.pcconomy.frontend.windows.wallet.WalletListener;
+import economy.pcconomy.frontend.mayor.MayorManagerListener;
+import economy.pcconomy.frontend.wallet.WalletListener;
 
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.trait.TraitInfo;
@@ -112,7 +112,7 @@ public final class PcConomy extends JavaPlugin {
         //      - WalletListener - listen all player actions with wallet object
         //============================================
 
-            for (var listener : Arrays.asList(new TownyListener(), new PlayerListener(), new WalletListener()))
+            for (var listener : Arrays.asList(new TownyListener(), new WalletListener(), new MayorManagerListener()))
                 Bukkit.getPluginManager().registerEvents(listener, this);
 
             System.out.print("[PcConomy] Listeners registered.\n");
@@ -144,7 +144,6 @@ public final class PcConomy extends JavaPlugin {
 
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Trader.class).withName("Trader"));
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(NpcLoaner.class).withName("npcloaner"));
-        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Loaner.class).withName("loaner"));
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(NpcTrader.class).withName("npctrader"));
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Banker.class).withName("banker"));
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Licensor.class).withName("licensor"));

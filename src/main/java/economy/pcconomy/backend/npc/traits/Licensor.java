@@ -1,7 +1,6 @@
 package economy.pcconomy.backend.npc.traits;
 
-import economy.pcconomy.frontend.windows.Window;
-import economy.pcconomy.frontend.windows.license.LicensorWindow;
+import economy.pcconomy.frontend.license.LicensorWindow;
 import net.citizensnpcs.api.event.NPCRightClickEvent;
 import net.citizensnpcs.api.trait.Trait;
 import net.citizensnpcs.api.trait.TraitName;
@@ -17,6 +16,6 @@ public class Licensor extends Trait {
     @EventHandler
     public void onClick(NPCRightClickEvent event) {
         if (!event.getNPC().equals(this.getNPC())) return;
-        Window.openWindow(event.getClicker(), new LicensorWindow());
+        LicensorWindow.generateWindow(event.getClicker());
     }
 }
