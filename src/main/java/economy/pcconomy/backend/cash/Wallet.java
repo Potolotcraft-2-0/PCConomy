@@ -85,8 +85,8 @@ public class Wallet {
     public static boolean isWallet(ItemStack itemStack) {
         if (itemStack == null) return false;
         if (itemStack.getLoreLines() == null) return false;
-
         if (itemStack.getLoreLines().size() == 0) return false;
+
         return StringUtils.containsAny(itemStack.getLoreLines().get(0).toLowerCase(), "алеф") &&
                     StringUtils.containsAny(itemStack.getLoreLines().get(1).toLowerCase(), "вместимость") &&
                     itemStack.getName().contains("Кошелёк");
@@ -115,8 +115,8 @@ public class Wallet {
 
         if (amount > 0) {
             if (Amount + cashAmount > Capacity) {
+                cashAmount = Capacity - Amount;
                 Amount = Capacity;
-                cashAmount -= Capacity;
             } else {
                 Amount += cashAmount;
                 cashAmount = 0;
@@ -124,8 +124,8 @@ public class Wallet {
         }
         else {
             if (Amount - cashAmount <= 0) {
-                Amount = 0;
                 cashAmount -= Amount;
+                Amount = 0;
             } else {
                 Amount -= cashAmount;
                 cashAmount = 0;
@@ -142,28 +142,11 @@ public class Wallet {
      * @return Amount of cash that can't be stored
      */
     public static double changeCashInWallets(Player player, double amount) {
-
-        // ==============================
-        // Found all wallets in inventory
-        // ==============================
-
         var wallets = getWallets(player);
         var cashAmount = Math.abs(amount);
 
-        // ==============================
-        // Found all wallets in inventory
-        // ==============================
-        // Take them from inventory
-        // ==============================
-
         for (var wallet : wallets)
             wallet.takeWallet(player);
-
-        // ==============================
-        // Take them from inventory
-        // ==============================
-        // Change value from all wallets
-        // ==============================
 
         for (var wallet : wallets) {
             if (cashAmount <= 0) break;
@@ -173,18 +156,8 @@ public class Wallet {
             wallet.giveWallet(player);
         }
 
-        // ==============================
-        // Change value from all wallets
-        // ==============================
-        // Give wallets to player
-        // ==============================
-
         for (var wallet : wallets)
             wallet.giveWallet(player);
-
-        // ==============================
-        // Give wallets to player
-        // ==============================
 
         return cashAmount;
     }

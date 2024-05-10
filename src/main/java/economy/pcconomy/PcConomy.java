@@ -10,7 +10,6 @@ import economy.pcconomy.backend.link.CommandManager;
 import economy.pcconomy.backend.npc.NpcManager;
 import economy.pcconomy.backend.npc.traits.*;
 import economy.pcconomy.backend.placeholderapi.PcConomyPAPI;
-import economy.pcconomy.backend.db.Loader;
 
 import economy.pcconomy.frontend.mayor.MayorManagerListener;
 import economy.pcconomy.frontend.wallet.WalletListener;
@@ -90,12 +89,12 @@ public final class PcConomy extends JavaPlugin {
         //============================================
 
             try {
-                if (new File(pluginPath + "npc_data.json").exists()) GlobalNPC = Loader.loadNPC(pluginPath + "npc_data");
+                if (new File(pluginPath + "npc_data.json").exists()) GlobalNPC = NpcManager.loadNPC(pluginPath + "npc_data");
                 if (new File(pluginPath + "bank_data.json").exists()) GlobalBank = Bank.loadBank(pluginPath + "bank_data");
-                if (new File(pluginPath + "towns_data.json").exists()) GlobalTownManager = Loader.loadTowns(pluginPath + "towns_data");
-                if (new File(pluginPath + "license_data.json").exists()) GlobalLicenseManager = Loader.loadLicenses(pluginPath + "license_data");
-                if (new File(pluginPath + "shares_data.json").exists()) GlobalShareManager = Loader.loadShares(pluginPath + "shares_data");
-                if (new File(pluginPath + "borrowers_data.json").exists()) GlobalBorrowerManager = Loader.loadBorrowers(pluginPath + "borrowers_data");
+                if (new File(pluginPath + "towns_data.json").exists()) GlobalTownManager = TownManager.loadTowns(pluginPath + "towns_data");
+                if (new File(pluginPath + "license_data.json").exists()) GlobalLicenseManager = LicenseManager.loadLicenses(pluginPath + "license_data");
+                if (new File(pluginPath + "shares_data.json").exists()) GlobalShareManager = ShareManager.loadShares(pluginPath + "shares_data");
+                if (new File(pluginPath + "borrowers_data.json").exists()) GlobalBorrowerManager = BorrowerManager.loadBorrowers(pluginPath + "borrowers_data");
             } catch (IOException error) {
                 System.out.println(error.getMessage());
             }
@@ -125,9 +124,9 @@ public final class PcConomy extends JavaPlugin {
 
             var command_manager = new CommandManager();
             for (var command : Arrays.asList("take_cash", "create_cash", "reload_towns", "put_cash2bank",
-                    "create_banker", "create_loaner", "create_npc_loaner", "create_trader", "create_npc_trader", "create_licensor",
+                    "create_banker", "create_npc_loaner", "create_trader", "create_npc_trader", "create_licensor",
                     "switch_town2npc", "switch_town2player", "town_menu", "add_trade2town", "reload_npc", "full_info", "set_day_bank_budget",
-                    "create_wallet", "create_shareholder", "transfer_share", "shares_rate", "global_market_prices"))
+                    "create_wallet", "create_shareholder", "shares_rate", "global_market_prices"))
                 Objects.requireNonNull(getCommand(command)).setExecutor(command_manager);
 
             System.out.print("[PcConomy] Commands registered.\n");
@@ -142,7 +141,7 @@ public final class PcConomy extends JavaPlugin {
         System.out.print("[PcConomy] PAPI registered.\n");
         System.out.print("[PcConomy] Traits registered.\n");
 
-        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Trader.class).withName("Trader"));
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Trader.class).withName("trader"));
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(NpcLoaner.class).withName("npcloaner"));
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(NpcTrader.class).withName("npctrader"));
         CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Banker.class).withName("banker"));
@@ -151,7 +150,7 @@ public final class PcConomy extends JavaPlugin {
 
         System.out.print("[PcConomy] NPC reloading.\n");
 
-        GlobalNPC.reloadNPC();
+        NpcManager.reloadNPC();
     }
 
     @Override

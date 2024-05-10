@@ -6,16 +6,19 @@ import economy.pcconomy.PcConomy;
 import economy.pcconomy.backend.cash.CashManager;
 import economy.pcconomy.backend.economy.share.objects.Share;
 import economy.pcconomy.backend.economy.share.objects.ShareType;
+import economy.pcconomy.backend.economy.town.manager.TownManager;
 import lombok.experimental.ExtensionMethod;
 
 import org.bukkit.entity.Player;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 
-@ExtensionMethod({CashManager.class})
+@ExtensionMethod({CashManager.class, TownManager.class})
 public class ShareManager {
     public final List<UUID> InteractionList = new ArrayList<>();
     public final Map<UUID, List<Share>> Shares = new HashMap<>();
@@ -113,7 +116,7 @@ public class ShareManager {
         for (var share : shares)
             if (!share.IsSold) price += share.Price;
 
-        return price / (double)shares.size();
+        return price / ((double)shares.size() + 1);
     }
 
     /**
@@ -129,17 +132,17 @@ public class ShareManager {
      * @param town Town that pay
      */
     public void payDividends(UUID town) {
-        var townObject = PcConomy.GlobalTownManager.getTown(town);
+        var townObject = town.getTown();
         for (var shares : Shares.get(town)) {
             if (shares.ShareType == ShareType.Equity) break;
-            if (townObject.quarterlyEarnings < 0) break;
+            if (townObject.QuarterlyEarnings < 0) break;
 
-            var pay = townObject.quarterlyEarnings * shares.Equality;
+            var pay = townObject.QuarterlyEarnings * shares.Equality;
             townObject.changeBudget(-pay);
             shares.Revenue += pay;
         }
 
-        townObject.quarterlyEarnings = 0;
+        townObject.QuarterlyEarnings = 0;
     }
 
     /**
@@ -170,5 +173,19 @@ public class ShareManager {
                 .create()
                 .toJson(this, writer);
         writer.close();
+    }
+
+    /**
+     * Loads shares data from .json
+     * @param fileName File name (without format)
+     * @return License manager object
+     * @throws IOException If something goes wrong
+     */
+    public static ShareManager loadShares(String fileName) throws IOException {
+        return new GsonBuilder()
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .create()
+                .fromJson(new String(Files.readAllBytes(Paths.get(fileName + ".json"))), ShareManager.class);
     }
 }

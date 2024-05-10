@@ -7,13 +7,15 @@ import com.palmergames.bukkit.towny.TownyAPI;
 import economy.pcconomy.backend.economy.town.NpcTown;
 import economy.pcconomy.backend.economy.town.PlayerTown;
 import economy.pcconomy.backend.economy.town.Town;
-import economy.pcconomy.backend.db.adaptors.ItemStackTypeAdaptor;
+import economy.pcconomy.PcConomy;
+import economy.pcconomy.backend.db.ItemStackTypeAdaptor;
 
-import economy.pcconomy.backend.db.adaptors.TownTypeAdaptor;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -26,8 +28,8 @@ public class TownManager {
     /**
      * Reload and save all Towns from server
      */
-    public void reloadTownObjects() {
-        Towns.clear();
+    public static void reloadTownObjects() {
+        PcConomy.GlobalTownManager.Towns.clear();
         for (com.palmergames.bukkit.towny.object.Town town : TownyAPI.getInstance().getTowns())
             createTownObject(town, false);
     }
@@ -37,18 +39,18 @@ public class TownManager {
      * @param town Created town
      * @param isNPC Is this town belongs NPC
      */
-    public void createTownObject(com.palmergames.bukkit.towny.object.Town town, boolean isNPC) {
-        Towns.add(isNPC ? new NpcTown(town) : new PlayerTown(town));
+    public static void createTownObject(com.palmergames.bukkit.towny.object.Town town, boolean isNPC) {
+        PcConomy.GlobalTownManager.Towns.add(isNPC ? new NpcTown(town) : new PlayerTown(town));
     }
 
     /**
      * Destroys town from plugin
      * @param townUUID UUID of town that was destroyed
      */
-    public void destroyTown(UUID townUUID) {
-        for (var townObject : Towns)
+    public static void destroyTown(UUID townUUID) {
+        for (var townObject : PcConomy.GlobalTownManager.Towns)
             if (townObject.getUUID().equals(townUUID)) {
-                Towns.remove(townObject);
+                PcConomy.GlobalTownManager.Towns.remove(townObject);
                 break;
             }
     }
@@ -58,7 +60,7 @@ public class TownManager {
      * @param townUUID UUID of town that change status
      * @param isNPC New status
      */
-    public void changeNPCStatus(UUID townUUID, boolean isNPC) {
+    public static void changeNPCStatus(UUID townUUID, boolean isNPC) {
         var townObject = getTown(townUUID);
         setTownObject(isNPC ?
                 new NpcTown(Objects.requireNonNull(TownyAPI.getInstance().getTown(townObject.getUUID()))) :
@@ -66,13 +68,38 @@ public class TownManager {
     }
 
     /**
+     * Changes town NPS status
+     * @param town UUID of town that change status
+     * @param isNPC New status
+     */
+    public static void changeNPCStatus(com.palmergames.bukkit.towny.object.Town town, boolean isNPC) {
+        var townObject = getTown(town.getUUID());
+        setTownObject(isNPC ?
+                new NpcTown(Objects.requireNonNull(TownyAPI.getInstance().getTown(townObject.getUUID()))) :
+                new PlayerTown(Objects.requireNonNull(TownyAPI.getInstance().getTown(townObject.getUUID()))));
+    }
+
+    /**
      * Gets town from list of town in plugin
-     * @param townUUID Name of town
+     * @param uuid Name of town
      * @return TownObject
      */
-    public Town getTown(UUID townUUID) {
-        for (var townObject : Towns)
-            if (townObject.getUUID().equals(townUUID))
+    public static Town getTown(UUID uuid) {
+        for (var townObject : PcConomy.GlobalTownManager.Towns)
+            if (townObject.getUUID().equals(uuid))
+                return townObject;
+
+        return null;
+    }
+
+    /**
+     * Gets town from list of town in plugin
+     * @param town Name of town
+     * @return TownObject
+     */
+    public static Town getTown(com.palmergames.bukkit.towny.object.Town town) {
+        for (var townObject : PcConomy.GlobalTownManager.Towns)
+            if (townObject.getUUID().equals(town.getUUID()))
                 return townObject;
 
         return null;
@@ -82,11 +109,11 @@ public class TownManager {
      * Sets town to list of town in plugin
      * @param town New townObject
      */
-    public void setTownObject(Town town) {
-        for (var currentTown : Towns)
+    public static void setTownObject(Town town) {
+        for (var currentTown : PcConomy.GlobalTownManager.Towns)
             if (currentTown.getUUID().equals(town.getUUID())) {
-                Towns.remove(currentTown);
-                Towns.add(town);
+                PcConomy.GlobalTownManager.Towns.remove(currentTown);
+                PcConomy.GlobalTownManager.Towns.add(town);
             }
     }
 
@@ -95,7 +122,7 @@ public class TownManager {
      * @param town Town
      * @return Prefix
      */
-    public String getTownPrefix(UUID town) {
+    public static String getTownPrefix(UUID town) {
         return Objects.requireNonNull(TownyAPI.getInstance().getTown(town)).getPrefix();
     }
 
@@ -110,10 +137,24 @@ public class TownManager {
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
                 .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new ItemStackTypeAdaptor())
-                .registerTypeHierarchyAdapter(Town.class, new TownTypeAdaptor())
                 .create()
                 .toJson(this, writer);
 
         writer.close();
+    }
+
+    /**
+     * Loads towns data from .json
+     * @param fileName File name (without format)
+     * @return Town manager object
+     * @throws IOException If something goes wrong
+     */
+    public static TownManager loadTowns(String fileName) throws IOException {
+        return new GsonBuilder()
+                .setPrettyPrinting()
+                .disableHtmlEscaping()
+                .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new ItemStackTypeAdaptor())
+                .create()
+                .fromJson(new String(Files.readAllBytes(Paths.get(fileName + ".json"))), TownManager.class);
     }
 }
