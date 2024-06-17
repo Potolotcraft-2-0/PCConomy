@@ -1,11 +1,14 @@
 package economy.pcconomy.backend.cash;
 
+import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.ExtensionMethod;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math3.util.Precision;
+
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
 import org.j1sk1ss.itemmanager.manager.Item;
 import org.j1sk1ss.itemmanager.manager.Manager;
 
@@ -40,9 +43,9 @@ public class Wallet {
         Body.setInteger2Container(1, "wallet");
     }
 
-    public double Amount;
-    public final double Capacity;
-    public final int Level;
+    @Getter @Setter private double Amount;
+    @Getter private final double Capacity;
+    @Getter private final int Level;
     private final ItemStack Body;
 
     private static final int walletDataModel = 17050; //TODO: DATA MODEL

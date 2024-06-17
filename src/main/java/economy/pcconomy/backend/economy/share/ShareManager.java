@@ -1,26 +1,21 @@
 package economy.pcconomy.backend.economy.share;
 
-import com.google.gson.GsonBuilder;
-
 import economy.pcconomy.PcConomy;
 import economy.pcconomy.backend.cash.Cash;
 import economy.pcconomy.backend.db.Loadable;
 import economy.pcconomy.backend.economy.share.objects.Share;
 import economy.pcconomy.backend.economy.share.objects.ShareType;
-import economy.pcconomy.backend.economy.town.TownManager;
 import lombok.experimental.ExtensionMethod;
 
+import net.potolotcraft.gorodki.GorodkiUniverse;
 import org.bukkit.entity.Player;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 
-@ExtensionMethod({Cash.class, TownManager.class})
+@ExtensionMethod({Cash.class})
 public class ShareManager extends Loadable {
-    public final List<UUID> InteractionList = new ArrayList<>();
+    public final List<UUID> InteractionList    = new ArrayList<>();
     public final Map<UUID, List<Share>> Shares = new HashMap<>();
 
     /**
@@ -36,7 +31,7 @@ public class ShareManager extends Loadable {
         var townShares = getTownShares(town);
         if (townShares != null)
             for (var share : townShares)
-                if (share.IsSold) shares.add(share);
+                if (share.isSold()) shares.add(share);
 
         for (var i = 0; i < count - shares.size(); i++)
             shares.add(new Share(town, shareType, price, size / (double) count));
@@ -55,7 +50,7 @@ public class ShareManager extends Loadable {
 
         if (prevShares != null)
             for (var share : prevShares)
-                if (share.IsSold) shares.add(share);
+                if (share.isSold()) shares.add(share);
 
         if (shares.size() > 0) Shares.put(town, shares);
         else Shares.remove(town);
@@ -82,27 +77,14 @@ public class ShareManager extends Loadable {
         Share share = null;
 
         for (var body : shares)
-            if (!body.IsSold) {
-                body.IsSold = true;
+            if (!body.isSold()) {
+                body.setSold(true);
                 share = body;
                 break;
             }
 
         Shares.put(town, shares);
         return share;
-    }
-
-    /**
-     * Get share without owner
-     * @param town Town
-     * @return Share without owner
-     */
-    public List<Share> getEmptyTownShare(UUID town) {
-        var list = new ArrayList<Share>();
-        for (var share : Shares.get(town))
-            if (!share.IsSold) list.add(share);
-
-        return list;
     }
 
     /**
@@ -114,7 +96,7 @@ public class ShareManager extends Loadable {
         var price = 0;
         var shares = Shares.get(town);
         for (var share : shares)
-            if (!share.IsSold) price += share.Price;
+            if (!share.isSold()) price += share.getPrice();
 
         return price / ((double)shares.size() + 1);
     }
@@ -132,17 +114,18 @@ public class ShareManager extends Loadable {
      * @param town Town that pay
      */
     public void payDividends(UUID town) {
-        var townObject = town.getTown();
-        for (var shares : Shares.get(town)) {
-            if (shares.ShareType == ShareType.Equity) break;
-            if (townObject.QuarterlyEarnings < 0) break;
+        var townObject = GorodkiUniverse.getInstance().getGorod(town);
 
-            var pay = townObject.QuarterlyEarnings * shares.Equality;
+        for (var shares : Shares.get(town)) {
+            if (shares.getShareType() == ShareType.Equity) break;
+            if (townObject.getQuarterlyEarnigns() < 0) break;
+
+            var pay = townObject.getQuarterlyEarnigns() * shares.getEquality();
             townObject.changeBudget(-pay);
-            shares.Revenue += pay;
+            shares.setRevenue(shares.getRevenue() + pay);
         }
 
-        townObject.QuarterlyEarnings = 0;
+        townObject.setQuarterlyEarnigns(0);
     }
 
     /**
@@ -150,10 +133,10 @@ public class ShareManager extends Loadable {
      * @param owner Current owner of share
      */
     public void cashOutShare(Player owner, Share share) {
-        for (var townShares : Shares.get(share.TownUUID)) {
-            if (townShares.ShareUUID.equals(share.ShareUUID)) {
-                owner.giveCashToPlayer(PcConomy.GlobalBank.getMainBank().deleteVAT(townShares.Revenue), false);
-                townShares.Revenue = 0;
+        for (var townShares : Shares.get(share.getTownUUID())) {
+            if (townShares.getShareUUID().equals(share.getShareUUID())) {
+                owner.giveCashToPlayer(PcConomy.GlobalBank.getBank().deleteVAT(townShares.getRevenue()), false);
+                townShares.setRevenue(0);
 
                 return;
             }

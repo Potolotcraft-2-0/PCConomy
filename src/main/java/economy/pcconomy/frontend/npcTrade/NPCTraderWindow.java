@@ -3,6 +3,7 @@ package economy.pcconomy.frontend.npcTrade;
 import java.util.List;
 import java.util.Objects;
 
+import net.potolotcraft.gorodki.GorodkiUniverse;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -14,15 +15,13 @@ import org.j1sk1ss.menuframework.objects.interactive.components.Panel;
 
 import com.palmergames.bukkit.towny.TownyAPI;
 
-import economy.pcconomy.backend.economy.town.towns.NpcTown;
-import economy.pcconomy.backend.economy.town.TownManager;
 import lombok.experimental.ExtensionMethod;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.npc.NPC;
 import net.kyori.adventure.text.Component;
 
 
-@ExtensionMethod({Manager.class, TownManager.class})
+@ExtensionMethod({Manager.class})
 public class NPCTraderWindow {
     @SuppressWarnings("deprecation")
     public static MenuWindow NpcTradeWindow = new MenuWindow(
@@ -34,7 +33,7 @@ public class NPCTraderWindow {
                             var player = (Player) event.getWhoClicked();
                             var currentItem = event.getCurrentItem();
                             var title = event.getView().getTitle();
-                            var town = (NpcTown) TownyAPI.getInstance().getTown(title.split(" ")[1]).getTown();
+                            var town = GorodkiUniverse.getInstance().getNPCGorod(TownyAPI.getInstance().getTown(title.split(" ")[1]));
                             if (town == null) return;
 
                             if (!player.getInventory().contains(currentItem))
@@ -53,21 +52,21 @@ public class NPCTraderWindow {
                                     town.sellResource2Storage(player.getInventory().getItemInMainHand(), player);
                                 }
                         })
-                ), "Магазин", MenuSizes.SixLines
+                ), "ვМагазин", MenuSizes.SixLines
             )
         )
     );
 
     public static Inventory generateWindow(Player player, NPC trader) {
-        var town = (NpcTown)TownyAPI.getInstance().getTown(trader.getStoredLocation()).getTown();
+        var town = GorodkiUniverse.getInstance().getNPCGorod(TownyAPI.getInstance().getTown(trader.getStoredLocation()));
         if (town == null) return null;
 
         var window = Bukkit.createInventory(
-                player, 54, Component.text("Магазин " +
+                player, 54, Component.text("ვМагазин " +
                 Objects.requireNonNull(TownyAPI.getInstance().getTown(town.getUUID())).getName() + " " + trader.getId())
         );
 
-        for (var item : town.Storage)
+        for (var item : town.getStorage())
             window.addItem(item.setLore(String.join("\n", item.getLoreLines())));
 
         return window;

@@ -1,16 +1,10 @@
 package economy.pcconomy.backend.economy.credit;
 
-import com.google.gson.GsonBuilder;
-
 import economy.pcconomy.PcConomy;
 
 import economy.pcconomy.backend.db.Loadable;
 import org.bukkit.entity.Player;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +19,7 @@ public class BorrowerManager extends Loadable {
      */
     public static Borrower getBorrowerObject(Player player) {
         for (var borrower : PcConomy.GlobalBorrower.borrowers)
-            if (borrower.Borrower.equals(player.getUniqueId())) return borrower;
+            if (borrower.getBorrower().equals(player.getUniqueId())) return borrower;
 
         return null;
     }
@@ -36,7 +30,7 @@ public class BorrowerManager extends Loadable {
      */
     public static void setBorrowerObject(Borrower borrowerObject) {
         for (var borrower = 0; borrower < PcConomy.GlobalBorrower.borrowers.size(); borrower++)
-            if (PcConomy.GlobalBorrower.borrowers.get(borrower).Borrower.equals(borrowerObject.Borrower))
+            if (PcConomy.GlobalBorrower.borrowers.get(borrower).getBorrower().equals(borrowerObject.getBorrower()))
                 PcConomy.GlobalBorrower.borrowers.set(borrower, borrowerObject);
     }
 

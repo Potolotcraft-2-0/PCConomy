@@ -4,6 +4,7 @@ import economy.pcconomy.PcConomy;
 import economy.pcconomy.backend.economy.credit.Loan;
 import economy.pcconomy.backend.cash.Cash;
 
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
 import lombok.experimental.ExtensionMethod;
@@ -33,16 +34,16 @@ public class NPCLoanWindow {
             new Button(0, 21, "Взять кредит", "Взять кредит у банка",
                 (event) -> {
                     var player = (Player)event.getWhoClicked();
-                    NPCLoanWindow.LoanMenu.getPanel("Кредит-Банк-Взятие").getView(player);
-                }),
+                    NPCLoanWindow.LoanMenu.getPanel("სКредит-Банк-Взятие").getView(player);
+                }, Material.GOLD_INGOT, 7000),
 
             new Button(5, 26, "Погасить кредит", "Погасить кредит банка",
                 (event) -> {
                     var player = (Player)event.getWhoClicked();
-                    Loan.payOffADebt(player, PcConomy.GlobalBank.getMainBank());
+                    Loan.payOffADebt(player, PcConomy.GlobalBank.getBank());
                     player.closeInventory();
-                })
-        ), "Кредит-Банк", MenuSizes.ThreeLines),
+                }, Material.GOLD_INGOT, 7000)
+        ), "გКредит-Банк", MenuSizes.ThreeLines),
 
         new Panel(Arrays.asList(
             new Slider(Arrays.asList(
@@ -51,20 +52,20 @@ public class NPCLoanWindow {
                 "20 дн.", "30 дн.", "40 дн.", "50 дн.", "60 дн.", "70 дн.", "80 дн.", "90 дн.", "100 дн."
             ), "Размер", "Время выплаты",
                 (event) -> {
-                    var loanPanel = NPCLoanWindow.LoanMenu.getPanel("Кредит-Банк-Взятие");
+                    var loanPanel = NPCLoanWindow.LoanMenu.getPanel("სКредит-Банк-Взятие");
                     var bar = loanPanel.getBars("Размер кредита");
                     var player = (Player)event.getWhoClicked();
                     var value = 0;
                     var options = new ArrayList<String>();
 
                     for (var i = 0; i < countOfAmountSteps; i++) {
-                        var maxLoanSize = PcConomy.GlobalBank.getMainBank().DayWithdrawBudget * 2;
-                        var isSafe = Loan.isSafeLoan(maxLoanSize / (9 - i), durationSteps.get((8 - i)), PcConomy.GlobalBank.getMainBank(), player);
+                        var maxLoanSize = PcConomy.GlobalBank.getBank().getDayWithdrawBudget() * 2;
+                        var isSafe = Loan.isSafeLoan(maxLoanSize / (9 - i), durationSteps.get((8 - i)), PcConomy.GlobalBank.getBank(), player);
 
                         var val = Math.round(maxLoanSize / (countOfAmountSteps - i) * 100) / 100 + " " + Cash.currencySigh;
                         var opt = "Банк не одобрит данный займ";
 
-                        if (isSafe && !PcConomy.GlobalBank.getMainBank().getBorrowers().contains(player.getUniqueId())) { // TODO: Fix credits
+                        if (isSafe && !PcConomy.GlobalBank.getBank().getBorrowers().contains(player.getUniqueId())) { // TODO: Fix credits
                             opt = "Банк одобрит данный займ\nПроцент: " +
                                     (Math.round(Loan.getPercent(maxLoanSize / (countOfAmountSteps - i), durationSteps.get((8 - i))) * 100) * 100d) / 100d + "%";
                             value = i;
@@ -86,25 +87,25 @@ public class NPCLoanWindow {
             ),
                 (event) -> {
                     var player    = (Player) event.getWhoClicked();
-                    var loanPanel = NPCLoanWindow.LoanMenu.getPanel("Кредит-Банк-Взятие");
+                    var loanPanel = NPCLoanWindow.LoanMenu.getPanel("სКредит-Банк-Взятие");
                     var durSlider = loanPanel.getSliders("Время выплаты").getChose(event);
                     var value     = Double.parseDouble(Objects.requireNonNull(event.getCurrentItem()).getLoreLines().get(0).split(" ")[0]);
                     var agreement = event.getCurrentItem().getLoreLines().get(1);
 
                     if (durSlider.equals("none")) return;
                     if (agreement.contains("Банк одобрит данный займ")) { // TODO: fix credits
-                        if (!PcConomy.GlobalBank.getMainBank().Credit.contains(Loan.getLoan(player.getUniqueId(), PcConomy.GlobalBank.getMainBank()))) {
+                        if (!PcConomy.GlobalBank.getBank().getCredit().contains(Loan.getLoan(player.getUniqueId(), PcConomy.GlobalBank.getBank()))) {
                             var loan = Loan.createLoan(value, Integer.parseInt(durSlider.split(" ")[0]), player);
-                            loan.addLoan(PcConomy.GlobalBank.getMainBank());
+                            loan.addLoan(PcConomy.GlobalBank.getBank());
 
                             player.closeInventory();
                         }
                     }
                 })
-        ), "Кредит-Банк-Взятие", MenuSizes.ThreeLines)
+        ), "სКредит-Банк-Взятие", MenuSizes.ThreeLines)
     ));
 
     public static void generateWindow(Player player) {
-        LoanMenu.getPanel("Кредит-Банк").getView(player);
+        LoanMenu.getPanel("გКредит-Банк").getView(player);
     }
 }
