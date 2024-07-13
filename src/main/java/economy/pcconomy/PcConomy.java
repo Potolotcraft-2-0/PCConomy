@@ -11,9 +11,8 @@ import economy.pcconomy.backend.npc.NpcManager;
 import economy.pcconomy.backend.npc.traits.*;
 import economy.pcconomy.backend.placeholderapi.PcConomyPAPI;
 
-import economy.pcconomy.frontend.mayor.MayorManagerListener;
-import economy.pcconomy.frontend.wallet.WalletListener;
-
+import economy.pcconomy.frontend.MayorManagerWindow;
+import economy.pcconomy.frontend.WalletWindow;
 import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.trait.TraitInfo;
 
@@ -28,15 +27,9 @@ import java.util.Objects;
 
 
 // TODO List:
-// 1) Refactoring
-//   1.1) Change project structure V
-//   1.2) Cleanup junk code (If it exists) V
 // 2) Debugging
-//   2.1) Wallet debugging V
 //   2.2) Shares debugging ?
-//   2.3) Money transfer debugging V
 // 3) Load \ Save
-//   3.1) Finish Town adaptor V
 //   3.2) Check save \ loading ?
 // 4) Models
 //   4.1) Set all model data where it needed ?
@@ -116,7 +109,7 @@ public final class PcConomy extends JavaPlugin {
         //      - WalletListener - listen all player actions with wallet object
         //============================================
 
-            for (var listener : Arrays.asList(new TownyListener(), new WalletListener(), new MayorManagerListener()))
+            for (var listener : Arrays.asList(new TownyListener(), new WalletWindow(), new MayorManagerWindow()))
                 Bukkit.getPluginManager().registerEvents(listener, this);
 
             System.out.print("[PcConomy] Listeners registered.\n");
