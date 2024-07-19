@@ -27,7 +27,7 @@ public class Bank extends Capitalist {
         vat                 = PcConomy.Config.getDouble("bank.start_VAT", .1d);
         depositPercent      = PcConomy.Config.getDouble("bank.start_deposit_percent", .05d);
         dayWithdrawBudget   = budget * usefulBudgetPercent;
-        trustCoefficient    = .05d;
+        trustCoefficient    = 2d;
 
         credit = new ArrayList<>();
     }
@@ -124,7 +124,7 @@ public class Bank extends Capitalist {
         var bigInflation = new AtomicReference<>(0d);
 
         GorodkiUniverse.getInstance().getNPCGorods().parallelStream().forEach((npc) -> {
-            bigInflation.updateAndGet(v -> (v + npc.getLocalInflation()));
+            bigInflation.updateAndGet(v -> (Double) (v + npc.getLocalInflation()));
             count.addAndGet(1);
         });
 

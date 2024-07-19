@@ -9,11 +9,16 @@ import economy.pcconomy.backend.npc.traits.*;
 import lombok.experimental.ExtensionMethod;
 
 import net.citizensnpcs.api.CitizensAPI;
+import net.citizensnpcs.api.event.CitizensDisableEvent;
+import net.citizensnpcs.api.event.CitizensEnableEvent;
 import net.citizensnpcs.api.trait.Trait;
 
+import net.citizensnpcs.api.trait.TraitInfo;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -24,9 +29,35 @@ import java.util.Map;
 
 
 @ExtensionMethod({Cash.class})
-public class NpcManager extends Loadable {
+public class NpcManager extends Loadable implements Listener {
     public final Map<Integer, Trader> Npc = new Hashtable<>();
     public static final double traderCost = PcConomy.Config.getDouble("npc.trader_cost", 1500d);
+
+    @EventHandler
+    public void RegisterNpc(CitizensEnableEvent event) {
+        System.out.print("[PcConomy] Traits registering.\n");
+
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Trader.class).withName("trader"));
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(NpcLoaner.class).withName("npcloaner"));
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(NpcTrader.class).withName("npctrader"));
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Banker.class).withName("banker"));
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Licensor.class).withName("licensor"));
+        CitizensAPI.getTraitFactory().registerTrait(TraitInfo.create(Shareholder.class).withName("shareholder"));
+
+        System.out.print("[PcConomy] NPC reloading.\n");
+
+        NpcManager.reloadNPC();
+    }
+
+    @EventHandler
+    public void SaveNpc(CitizensDisableEvent event) {
+        try {
+            System.out.print("[PcConomy] Traits saving.\n");
+            PcConomy.GlobalNPC.save("plugins\\PcConomy\\" + PcConomy.GlobalNPC.getName());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     /**
      * Create NPC with special trait
@@ -44,10 +75,11 @@ public class NpcManager extends Loadable {
      * Update list of available NPC
      */
     public static void reloadNPC() {
-        // Register traits
         for (net.citizensnpcs.api.npc.NPC npc: CitizensAPI.getNPCRegistry()) {
-            if (PcConomy.GlobalNPC.Npc.get(npc.getId()) != null)
+            if (PcConomy.GlobalNPC.Npc.get(npc.getId()) != null) {
                 PcConomy.GlobalNPC.Npc.get(npc.getId()).linkToNPC(npc);
+                continue;
+            }
 
             switch (npc.getName()) {
                 case "npcloaner"   -> npc.addTrait(NpcLoaner.class);
@@ -71,7 +103,7 @@ public class NpcManager extends Loadable {
 
     @Override
     public void save(String fileName) throws IOException {
-        // Check all server NPC
+        Npc.clear();
         for (net.citizensnpcs.api.npc.NPC npc: CitizensAPI.getNPCRegistry())
             if (npc.hasTrait(Trader.class)) Npc.put(npc.getId(), npc.getOrAddTrait(Trader.class));
 

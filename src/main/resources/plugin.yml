@@ -20,8 +20,6 @@ commands:
   create_shareholder:
     usage: /create_shareholder
     description: create shareholder npc
-  reload_towns:
-    usage: /reload_towns
   put_cash2bank:
     usage: /put_cash2bank [amount]
     description: take moneys from inventory and put it to the bank (Moved to your bank account)
@@ -40,15 +38,9 @@ commands:
   create_licensor:
     usage: /create_licensor
     description: create licensor npc
-  switch_town2npc:
-    usage: /switch_town2npc
-  switch_town2player:
-    usage: /switch_town2player
   town_menu:
     usage: /town_menu
     description: open mayor menu
-  add_trade2town:
-    usage: /add_trade2town [town name] [material] [amount]
   reload_npc:
     usage: /reload_npc
   full_info:
@@ -62,23 +54,3 @@ commands:
   global_market_prices:
     usage: /global_market_prices
     description: get summary prices of goods
-
-
-bank:
-  start_budget: 15000
-  start_useful_budget: 0.25
-  start_VAT: 0.10
-  start_deposit_percent: 0.05
-license:
-  market_license_price: 1500
-  trade_license_price: 500
-  loan_license_price: 10000
-  loan_history_license_price: 20000
-npc:
-  trader_cost: 3500
-  loaner_cost: 20000
-town:
-  start_useful_budget: 0.35
-  start_useful_storage: 0.30
-  start_vat: 0.05
-

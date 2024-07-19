@@ -15,6 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 
 import org.j1sk1ss.itemmanager.manager.Manager;
+import org.j1sk1ss.menuframework.common.LocalizationManager;
 import org.j1sk1ss.menuframework.objects.MenuSizes;
 import org.j1sk1ss.menuframework.objects.MenuWindow;
 import org.j1sk1ss.menuframework.objects.interactive.components.ClickArea;
@@ -55,7 +56,7 @@ public class BankerWindow {
                         }) // Withdraw
                 ), "Банк", MenuSizes.SixLines, "\u10D0"
             )
-        )
+        ), "Bank", new LocalizationManager(PcConomy.Config.getString("ui.loc4bank"))
     );
 
     public static void generateWindow(Player player) {
@@ -76,8 +77,8 @@ public class BankerWindow {
         components.addAll(balance);
         components.addAll(actions);
         
-        if (inventory == null) BankWindow.getPanel("Банк").getViewWith(player, components);
-        else BankWindow.getPanel("Банк").getViewWith(components, inventory);
+        if (inventory == null) BankWindow.getPanel("Банк", PcConomy.Config.getString("ui.language", "RU")).getViewWith(player, components);
+        else BankWindow.getPanel("Банк", PcConomy.Config.getString("ui.language", "RU")).getViewWith(components, inventory);
     }
 
     // Print action buttons (Default + max-min actions)
@@ -85,12 +86,12 @@ public class BankerWindow {
         var list = new ArrayList<org.j1sk1ss.menuframework.objects.interactive.Component>();
 
         if (playerBalance < enableBalance) {
-            var withdrawMax = new LittleButton(41, "Снять максимум", "\n" + Math.round(playerBalance * 100) / 100 + Cash.currencySigh, null, Material.GOLD_INGOT, 7000);
+            var withdrawMax = new LittleButton(41, "Снять максимум", "\n" + Math.round(playerBalance * 100) / 100 + Cash.currencySigh, null, Material.GOLD_INGOT, 7002);
             withdrawMax.setDouble2Container(Math.round(playerBalance * 100d) / 100d, "item-bank-value");
             list.add(withdrawMax);  
         } 
 
-        var putMax = new LittleButton(36, "Положить все средства", "\n-" + cashInInventory + Cash.currencySigh, null, Material.GOLD_INGOT, 7000);
+        var putMax = new LittleButton(36, "Положить все средства", "\n-" + cashInInventory + Cash.currencySigh, null, Material.GOLD_INGOT, 7001);
         putMax.setDouble2Container(Double.parseDouble("\n-" + cashInInventory), "item-bank-value");
         list.add(putMax);        
         
@@ -106,7 +107,10 @@ public class BankerWindow {
     private static List<org.j1sk1ss.menuframework.objects.interactive.Component> printButtons(String thing, int position, int enabled) {
         var list = new ArrayList<org.j1sk1ss.menuframework.objects.interactive.Component>();
         for (var j = enabled; j < 8; j++) {
-            var button = new LittleButton(j + (position + 5 * (j / 4)), "Действие", thing + Cash.Denomination.get(j) + Cash.currencySigh, null, Material.GOLD_INGOT, 7000);
+            var button = new LittleButton(j + (position + 5 * (j / 4)), "Действие",
+                    thing + Cash.Denomination.get(j) + Cash.currencySigh,
+                    null, Material.GOLD_INGOT,
+                    thing.equals("\n-") ? 7001 : 7002);
             button.setDouble2Container(Double.parseDouble(thing + Cash.Denomination.get(j)), "item-bank-value");
             list.add(button);
         }
@@ -119,9 +123,9 @@ public class BankerWindow {
         var list = new ArrayList<org.j1sk1ss.menuframework.objects.interactive.Component>();
         for (var i = 9; i < Math.min(charArray.length + 9, 27); i++) {
             var currentChar = charArray[i - 9];
-            if (currentChar == 'E') list.add(new Icon(i, "Баланс", textBalance, Material.GOLD_INGOT, 7000));
-            else if (currentChar == '.') list.add(new Icon(i, "Баланс", textBalance, Material.GOLD_INGOT, 7000));
-            else  list.add(new Icon(i, "Баланс", textBalance, Material.GOLD_INGOT, 7000)); // TODO: DATA MODEL
+            if (currentChar == 'E') list.add(new Icon(i, "Баланс", textBalance, Material.GOLD_INGOT, 7014));
+            else if (currentChar == '.') list.add(new Icon(i, "Баланс", textBalance, Material.GOLD_INGOT, 7013));
+            else list.add(new Icon(i, "Баланс", textBalance, Material.GOLD_INGOT, 7003 + Character.getNumericValue(currentChar)));
         }
 
         return list;
