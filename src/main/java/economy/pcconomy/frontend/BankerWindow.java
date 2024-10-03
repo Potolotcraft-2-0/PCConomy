@@ -32,7 +32,7 @@ public class BankerWindow {
             new Panel(
                 Arrays.asList(
                     new ClickArea(new Margin(4, 0, 1, 3),
-                        (event) -> {
+                        (event, menu) -> {
                             var player = (Player) event.getWhoClicked();
                             var option = event.getCurrentItem();
                             if (option == null) return;
@@ -44,7 +44,7 @@ public class BankerWindow {
                             BankerWindow.regenerateWindow(player, event.getInventory());
                         }), // Put
                     new ClickArea(new Margin(4, 5, 1, 3),
-                        (event) -> {
+                        (event, menu) -> {
                             var player = (Player) event.getWhoClicked();
                             var option = event.getCurrentItem();
                             if (option == null) return;
@@ -114,6 +114,7 @@ public class BankerWindow {
                 null, Material.GOLD_INGOT,
                 thing.equals("\n-") ? 7001 : 7002
             );
+
             button.setDouble2Container(Double.parseDouble(thing + Cash.Denomination.get(j)), "item-bank-value");
             list.add(button);
         }

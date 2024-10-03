@@ -47,7 +47,7 @@ public class MayorManagerWindow implements Listener {
     public static MenuWindow TraderManager = new MenuWindow(Arrays.asList(
         new Panel(List.of(
             new ClickArea(new Margin(0, 0, 2, 8),
-                (event) -> {
+                (event, menu) -> {
                     var player = (Player)event.getWhoClicked();
                     var inventory = event.getInventory();
 
@@ -56,22 +56,23 @@ public class MayorManagerWindow implements Listener {
                 }),
 
             new Button(new Margin(3, 0, 0, 8), "Купить торговца", "Купить нового торговца",
-                (event) -> new Trader().Buy((Player) event.getWhoClicked()), Material.GOLD_INGOT, 7000)
+                (event, menu) -> new Trader().Buy((Player) event.getWhoClicked()), Material.GOLD_INGOT, 7000)
         ), "Город-Торговцы", MenuSizes.FourLines, "\u10D3"),
 
         new Panel(Arrays.asList(
             new Button(new Margin(0, 0, 2, 2), "Уволить торговца", "Торговец будет уволен",
-                (event) -> {
+                (event, menu) -> {
                     var title  = Utils.getInventoryTitle(event);
                     var trader = getTraderFromTitle(title);
                     if (trader == null) return;
-                    if (trader.IsRanted) return;
+                    if (trader.isRanted()) return;
 
                     trader.destroy();
+                    event.getWhoClicked().closeInventory();
                 }, Material.GOLD_INGOT, 7000),
 
             new Button(new Margin(0, 3, 2, 2), "Переместить торговца", "Торговец будет перемещён в место вашего клика",
-                (event) -> {
+                (event, menu) -> {
                     var player = (Player)event.getWhoClicked();
                     var title  = Utils.getInventoryTitle(event);
                     var trader = getTraderFromTitle(title);
@@ -87,18 +88,18 @@ public class MayorManagerWindow implements Listener {
                 }, Material.GOLD_INGOT, 7000),
 
             new Button(new Margin(0, 6, 2, 2), "Улучшить торговца", "Торговец будет улучшен (+9 слотов)",
-                (event) -> {
+                (event, menu) -> {
                     var player = (Player)event.getWhoClicked();
                     var title  = Utils.getInventoryTitle(event);
                     var trader = getTraderFromTitle(title);
                     if (trader == null) return;
-                    if (trader.Level >= 6) return;
+                    if (trader.getLevel() >= 6) return;
 
                     var inventoryAmount = player.amountOfCashInInventory(false);
-                    var price = NpcManager.traderCost * trader.Level;
+                    var price = NpcManager.traderCost * trader.getLevel();
                     if (Bank.getValueWithVat(price) > inventoryAmount) return;
 
-                    trader.Level = Math.min(trader.Level + 1, 6);
+                    trader.setLevel(Math.min(trader.getLevel() + 1, 6));
                     player.takeCashFromPlayer(PcConomy.GlobalBank.getBank().addVAT(price), false);
                 }, Material.GOLD_INGOT, 7000)
         ), "Торговцы-Управление", MenuSizes.ThreeLines, "\u10D4")
@@ -110,8 +111,8 @@ public class MayorManagerWindow implements Listener {
         for (var i = 0; i < Math.min(27, town.getTraders().size()); i++) {
             var trader = CitizensAPI.getNPCRegistry().getById(town.getTraders().get(i)).getOrAddTrait(Trader.class);
             components.add(new Icon(new Margin(i, 0, 0), town.getTraders().get(i) + "",
-                "Ranted: " + trader.IsRanted + "\nMargin: " + trader.Margin +
-                        "\nRant price: " + trader.Cost,
+                "Ranted: " + trader.isRanted() + "\nMargin: " + trader.getMargin() +
+                        "\nRant price: " + trader.getCost(),
                     Material.GOLD_INGOT, 8000 + ThreadLocalRandom.current().nextInt(0, 7)));
         }
 

@@ -12,8 +12,8 @@ import net.citizensnpcs.api.CitizensAPI;
 import net.citizensnpcs.api.event.CitizensDisableEvent;
 import net.citizensnpcs.api.event.CitizensEnableEvent;
 import net.citizensnpcs.api.trait.Trait;
-
 import net.citizensnpcs.api.trait.TraitInfo;
+
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -30,7 +30,7 @@ import java.util.Map;
 
 @ExtensionMethod({Cash.class})
 public class NpcManager extends Loadable implements Listener {
-    public final Map<Integer, Trader> Npc = new Hashtable<>();
+    public Map<Integer, TraderData> Npc = new Hashtable<>();
     public static final double traderCost = PcConomy.Config.getDouble("npc.trader_cost", 1500d);
 
     @EventHandler
@@ -53,7 +53,7 @@ public class NpcManager extends Loadable implements Listener {
     public void SaveNpc(CitizensDisableEvent event) {
         try {
             System.out.print("[PcConomy] Traits saving.\n");
-            PcConomy.GlobalNPC.save("plugins\\PcConomy\\" + PcConomy.GlobalNPC.getName());
+            save("plugins\\PcConomy\\" + getName());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -77,7 +77,9 @@ public class NpcManager extends Loadable implements Listener {
     public static void reloadNPC() {
         for (net.citizensnpcs.api.npc.NPC npc: CitizensAPI.getNPCRegistry()) {
             if (PcConomy.GlobalNPC.Npc.get(npc.getId()) != null) {
-                PcConomy.GlobalNPC.Npc.get(npc.getId()).linkToNPC(npc);
+                var trader = new Trader(PcConomy.GlobalNPC.Npc.get(npc.getId()));
+                trader.linkToNPC(npc);
+                npc.addTrait(trader);
                 continue;
             }
 
@@ -105,13 +107,14 @@ public class NpcManager extends Loadable implements Listener {
     public void save(String fileName) throws IOException {
         Npc.clear();
         for (net.citizensnpcs.api.npc.NPC npc: CitizensAPI.getNPCRegistry())
-            if (npc.hasTrait(Trader.class)) Npc.put(npc.getId(), npc.getOrAddTrait(Trader.class));
+            if (npc.hasTrait(Trader.class)) {
+                Npc.put(npc.getId(), new TraderData(npc.getOrAddTrait(Trader.class)));
+            }
 
         var writer = new FileWriter(fileName + ".json", false);
         new GsonBuilder()
                 .setPrettyPrinting()
                 .disableHtmlEscaping()
-                .excludeFieldsWithoutExposeAnnotation()
                 .registerTypeHierarchyAdapter(ConfigurationSerializable.class, new ItemStackTypeAdaptor())
                 .create()
                 .toJson(this, writer);

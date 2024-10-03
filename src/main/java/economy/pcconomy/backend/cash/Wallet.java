@@ -24,7 +24,7 @@ public class Wallet {
     public Wallet() {
         Amount   = 0.0d;
         Level    = 1;
-        Capacity = Level * 500;
+        Capacity = Level * 500d;
         Body     = new Item("Кошелёк", Amount + " Алеф\nВместимость: " + Level, Material.BOOK, 1, walletDataModel);
 
         Body.setInteger2Container(1, "wallet");
@@ -37,7 +37,7 @@ public class Wallet {
     public Wallet(ItemStack wallet) {
         Amount   = Double.parseDouble(wallet.getLoreLines().get(0).split(" ")[0]);
         Level    = Integer.parseInt(wallet.getLoreLines().get(1).split(" ")[1]);
-        Capacity = Level * 500;
+        Capacity = Level * 500d;
         Body     = wallet;
 
         Body.setInteger2Container(1, "wallet");
