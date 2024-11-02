@@ -1,19 +1,19 @@
 package economy.pcconomy.backend.economy.credit;
 
 import economy.pcconomy.PcConomy;
-import economy.pcconomy.backend.economy.Capitalist;
 import economy.pcconomy.backend.cash.Balance;
+import economy.pcconomy.backend.economy.Capitalist;
 import economy.pcconomy.backend.economy.PlayerManager;
 
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.ExtensionMethod;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import lombok.experimental.ExtensionMethod;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.Objects;
 
 
 @Getter
@@ -101,7 +101,7 @@ public class Loan {
      */
     public static boolean isSafeLoan(double loanAmount, int duration, Capitalist loaner, Player borrower) {
         return (getSafetyFactor(loanAmount, duration, borrower.getBorrowerObject()) >= loaner.getTrustCoefficient()
-                && !blackTown(borrower.getUniqueId().getCountryMens())
+                && !blackTown(borrower.getCountryMens())
                 && borrower.getPlayerServerDuration() > 0);
     }
 
@@ -110,9 +110,9 @@ public class Loan {
      * @param uuids UUID of players from town
      * @return Status of town
      */
-    public static boolean blackTown(List<UUID> uuids) {
-        return uuids.parallelStream().anyMatch(uuid -> {
-            var loan = getLoan(uuid, PcConomy.GlobalBank.getBank());
+    public static boolean blackTown(List<Player> uuids) {
+        return uuids.parallelStream().anyMatch(player -> {
+            var loan = getLoan(player.getUniqueId(), PcConomy.GlobalBank.getBank());
             return loan != null && loan.expired > 5;
         });
     }
@@ -138,7 +138,7 @@ public class Loan {
         var loan = getLoan(player.getUniqueId(), creditOwner);
 
         if (loan == null) return false;
-        if (player.solvent(loan.amount)) return false;
+        if (!player.solvent(loan.amount)) return false;
 
         player.takeMoney(loan.amount);
         creditOwner.changeBudget(loan.amount);
@@ -160,7 +160,7 @@ public class Loan {
                 return;
             }
 
-            if (owner.solvent(loan.dailyPayment)) {
+            if (!owner.solvent(loan.dailyPayment)) {
                 loan.expired += 1;
                 continue;
             }

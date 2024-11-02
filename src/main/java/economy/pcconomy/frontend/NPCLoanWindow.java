@@ -6,32 +6,26 @@ import economy.pcconomy.backend.cash.Cash;
 
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
-
 import lombok.experimental.ExtensionMethod;
-
 import org.j1sk1ss.itemmanager.manager.Manager;
 
 import org.j1sk1ss.menuframework.objects.MenuSizes;
 import org.j1sk1ss.menuframework.objects.MenuWindow;
+import org.j1sk1ss.menuframework.objects.nonInteractive.Margin;
+import org.j1sk1ss.menuframework.objects.nonInteractive.Direction;
 import org.j1sk1ss.menuframework.objects.interactive.components.Bar;
-import org.j1sk1ss.menuframework.objects.interactive.components.Button;
 import org.j1sk1ss.menuframework.objects.interactive.components.Panel;
 import org.j1sk1ss.menuframework.objects.interactive.components.Slider;
-import org.j1sk1ss.menuframework.objects.nonInteractive.Direction;
-import org.j1sk1ss.menuframework.objects.nonInteractive.Margin;
+import org.j1sk1ss.menuframework.objects.interactive.components.Button;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
+import java.util.ArrayList;
 
 
 @ExtensionMethod({Manager.class})
 public class NPCLoanWindow {
-    private final static int countOfAmountSteps = 9;
-    private final static List<Integer> durationSteps = Arrays.asList(20, 30, 40, 50, 60, 70, 80, 90, 100);
-
-    public static final MenuWindow LoanMenu = new MenuWindow(Arrays.asList(
+    private static final MenuWindow LoanMenu = new MenuWindow(Arrays.asList(
         new Panel(Arrays.asList(
             new Button(new Margin(0, 0, 2, 3), "Взять кредит", "Взять кредит у банка",
                 (event, menu) -> {
@@ -55,6 +49,9 @@ public class NPCLoanWindow {
                 "20 дн.", "30 дн.", "40 дн.", "50 дн.", "60 дн.", "70 дн.", "80 дн.", "90 дн.", "100 дн."
             ), "Размер", "Время выплаты",
                 (event, menu) -> {
+                    var durationSteps = Arrays.asList(20, 30, 40, 50, 60, 70, 80, 90, 100);
+                    var countOfAmountSteps = 9;
+
                     var loanPanel = menu.getPanel("Кредит-Взятие");
                     var bar = loanPanel.getComponent("Размер кредита", Bar.class);
                     var player = (Player)event.getWhoClicked();
@@ -86,21 +83,29 @@ public class NPCLoanWindow {
                 "", "", "", "", "", "", "", "", ""
             ),
                 (event, menu) -> {
-                    var player    = (Player) event.getWhoClicked();
-                    var loanPanel = menu.getPanel("Кредит-Взятие");
-                    var durSlider = loanPanel.getComponent("Время выплаты", Slider.class).getChose(event);
-                    var value     = Double.parseDouble(Objects.requireNonNull(event.getCurrentItem()).getLoreLines().get(0).split(" ")[0]);
-                    var agreement = event.getCurrentItem().getLoreLines().get(1);
+                    try {
+                        var option = event.getCurrentItem();
+                        if (option == null) return;
 
-                    if (durSlider.equals("none")) return;
-                    if (agreement.contains("Банк одобрит данный займ")) {
-                        if (!PcConomy.GlobalBank.getBank().getCredit().contains(Loan.getLoan(player.getUniqueId(), PcConomy.GlobalBank.getBank()))) {
-                            var loan = Loan.createLoan(value, Integer.parseInt(durSlider.split(" ")[0]), player);
-                            loan.addLoan(PcConomy.GlobalBank.getBank());
+                        var player = (Player) event.getWhoClicked();
+                        var loanPanel = menu.getPanel("Кредит-Взятие");
+                        var durSlider = loanPanel.getComponent("Время выплаты", Slider.class).getChose(event);
+                        var value = Double.parseDouble(Objects.requireNonNull(option).getLoreLines().get(0).split(" ")[0]);
+                        var agreement = option.getLoreLines().get(1);
 
-                            player.closeInventory();
-                            player.sendMessage("Вам был выдан кредит в размере: " + loan.getAmount() + Cash.currencySigh);
+                        if (durSlider.equals("none")) return;
+                        if (agreement.contains("Банк одобрит данный займ")) {
+                            if (!PcConomy.GlobalBank.getBank().getCredit().contains(Loan.getLoan(player.getUniqueId(), PcConomy.GlobalBank.getBank()))) {
+                                var loan = Loan.createLoan(value, Integer.parseInt(durSlider.split(" ")[0]), player);
+                                loan.addLoan(PcConomy.GlobalBank.getBank());
+
+                                player.closeInventory();
+                                player.sendMessage("Вам был выдан кредит в размере: " + loan.getAmount() + Cash.currencySigh);
+                            }
                         }
+                    }
+                    catch (Exception e) {
+                        System.out.println("Something went wrong: " + e.getMessage());
                     }
                 }, 7001, 7002, Material.GOLD_INGOT, Material.GOLD_INGOT)
         ), "Кредит-Взятие", MenuSizes.ThreeLines, "\u10E1")

@@ -4,39 +4,36 @@ import com.palmergames.bukkit.towny.TownyAPI;
 
 import economy.pcconomy.PcConomy;
 import economy.pcconomy.backend.cash.Cash;
-import economy.pcconomy.backend.economy.bank.Bank;
 import economy.pcconomy.backend.npc.NpcManager;
+import economy.pcconomy.backend.economy.bank.Bank;
 import economy.pcconomy.backend.npc.traits.Trader;
 
 import lombok.experimental.ExtensionMethod;
-
 import net.citizensnpcs.api.CitizensAPI;
-
 import net.potolotcraft.gorodki.GorodkiUniverse;
 
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.EventHandler;
+import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
-import org.bukkit.persistence.PersistentDataType;
 
 import org.j1sk1ss.itemmanager.manager.Manager;
-import org.j1sk1ss.menuframework.common.LocalizationManager;
 import org.j1sk1ss.menuframework.objects.MenuSizes;
 import org.j1sk1ss.menuframework.objects.MenuWindow;
-import org.j1sk1ss.menuframework.objects.interactive.components.Button;
-import org.j1sk1ss.menuframework.objects.interactive.components.ClickArea;
+import org.j1sk1ss.menuframework.objects.nonInteractive.Margin;
 import org.j1sk1ss.menuframework.objects.interactive.components.Icon;
 import org.j1sk1ss.menuframework.objects.interactive.components.Panel;
-import org.j1sk1ss.menuframework.objects.nonInteractive.Margin;
+import org.j1sk1ss.menuframework.objects.interactive.components.Button;
+import org.j1sk1ss.menuframework.objects.interactive.components.ClickArea;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Arrays;
 import java.util.Objects;
+import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static economy.pcconomy.frontend.TraderWindow.getTraderFromTitle;
@@ -44,7 +41,7 @@ import static economy.pcconomy.frontend.TraderWindow.getTraderFromTitle;
 
 @ExtensionMethod({Cash.class, Manager.class})
 public class MayorManagerWindow implements Listener {
-    public static MenuWindow TraderManager = new MenuWindow(Arrays.asList(
+    private static final MenuWindow TraderManager = new MenuWindow(Arrays.asList(
         new Panel(List.of(
             new ClickArea(new Margin(0, 0, 2, 8),
                 (event, menu) -> {
@@ -103,7 +100,7 @@ public class MayorManagerWindow implements Listener {
                     player.takeCashFromPlayer(PcConomy.GlobalBank.getBank().addVAT(price), false);
                 }, Material.GOLD_INGOT, 7000)
         ), "Торговцы-Управление", MenuSizes.ThreeLines, "\u10D4")
-    ), "Mayor", new LocalizationManager(PcConomy.Config.getString("ui.loc4mayor")));
+    ), "Mayor");
 
     public static void generateWindow(Player player) {
         var components = new ArrayList<org.j1sk1ss.menuframework.objects.interactive.Component>();
@@ -116,10 +113,10 @@ public class MayorManagerWindow implements Listener {
                     Material.GOLD_INGOT, 8000 + ThreadLocalRandom.current().nextInt(0, 7)));
         }
 
-        TraderManager.getPanel("Город-Торговцы", PcConomy.Config.getString("ui.language", "RU")).getViewWith(player, components);
+        TraderManager.getPanel("Город-Торговцы").getViewWith(player, components);
     }
 
-    public static void generateTradeControls(Player player, int traderId) {
+    private static void generateTradeControls(Player player, int traderId) {
         TraderManager.getPanel("Торговцы-Управление").getView(player, "Торговцы-Управление " + traderId);
     }
 

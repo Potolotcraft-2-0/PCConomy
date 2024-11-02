@@ -12,8 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import org.j1sk1ss.itemmanager.manager.Item;
 import org.j1sk1ss.itemmanager.manager.Manager;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList;
 
 
 @ExtensionMethod({Manager.class})
@@ -148,9 +148,7 @@ public class Wallet {
         var wallets = getWallets(player);
         var cashAmount = Math.abs(amount);
 
-        for (var wallet : wallets)
-            wallet.takeWallet(player);
-
+        for (var wallet : wallets) wallet.takeWallet(player);
         for (var wallet : wallets) {
             if (cashAmount <= 0) break;
 
@@ -159,9 +157,7 @@ public class Wallet {
             wallet.giveWallet(player);
         }
 
-        for (var wallet : wallets)
-            wallet.giveWallet(player);
-
+        for (var wallet : wallets) wallet.giveWallet(player);
         return cashAmount;
     }
 }

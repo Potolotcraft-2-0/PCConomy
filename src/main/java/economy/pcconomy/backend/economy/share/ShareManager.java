@@ -1,22 +1,24 @@
 package economy.pcconomy.backend.economy.share;
 
+import lombok.Getter;
+import lombok.experimental.ExtensionMethod;
+
 import economy.pcconomy.PcConomy;
 import economy.pcconomy.backend.cash.Cash;
 import economy.pcconomy.backend.db.Loadable;
 import economy.pcconomy.backend.economy.share.objects.Share;
 import economy.pcconomy.backend.economy.share.objects.ShareType;
-import lombok.experimental.ExtensionMethod;
 
-import net.potolotcraft.gorodki.GorodkiUniverse;
 import org.bukkit.entity.Player;
-
+import net.potolotcraft.gorodki.GorodkiUniverse;
 import java.util.*;
 
 
+@Getter
 @ExtensionMethod({Cash.class})
 public class ShareManager extends Loadable {
-    public final List<UUID> InteractionList    = new ArrayList<>();
-    public final Map<UUID, List<Share>> Shares = new HashMap<>();
+    private final List<UUID> InteractionList    = new ArrayList<>();
+    private final Map<UUID, List<Share>> Shares = new HashMap<>();
 
     /**
      * Expose shares
@@ -85,20 +87,6 @@ public class ShareManager extends Loadable {
 
         Shares.put(town, shares);
         return share;
-    }
-
-    /**
-     * Get average price of share
-     * @param town Town
-     * @return Average price
-     */
-    public double getMedianSharePrice(UUID town) {
-        var price = 0d;
-        var shares = Shares.get(town);
-        for (var share : shares)
-            if (!share.isSold()) price += share.getPrice();
-
-        return price / ((double)shares.size() + 1);
     }
 
     /**
